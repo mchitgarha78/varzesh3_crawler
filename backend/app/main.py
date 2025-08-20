@@ -1,11 +1,11 @@
-from fastapi import FastAPI, Depends, HTTPException, BackgroundTasks
-from sqlalchemy.orm import Session
-from . import models, schemas, crud, scraper
-from .database import SessionLocal, engine
-from typing import List
 import time
 import threading
+from fastapi import FastAPI, Depends, HTTPException, BackgroundTasks
+from sqlalchemy.orm import Session
+from typing import List
 from fastapi.middleware.cors import CORSMiddleware
+from .database import SessionLocal, engine
+from . import models, schemas, crud, scraper
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -39,7 +39,7 @@ def periodic_scrape():
             print(f"Periodic scrape error: {e}")
         time.sleep(60) # every minute
 
-# Creating thread for periodic scraper:
+# Creating thread for periodic scraper (60 seconds interval)
 scrape_thread = threading.Thread(target=periodic_scrape, daemon=True)
 scrape_thread.start()
 

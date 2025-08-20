@@ -1,14 +1,14 @@
 import requests
+import re
+import time
 from bs4 import BeautifulSoup
 from sqlalchemy.orm import Session
-from . import models, crud
 from datetime import datetime
-import time
-import re
-import jdatetime
+
+from .utils import parse_persian_date
+from . import models, crud
+
 BASE_USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
-
-
 
 # IMPORTANT NOTE: We can also get news list from the https://web-api.varzesh3.com/v1.0/.
 # But because of the ban risk we can choose manually search and scrape. Also some data on this api is not complete.
@@ -85,6 +85,78 @@ def scrape_varzesh3(db: Session):
         print(f"Error scraping Varzesh3: {e}")
         return []
 
+def scrape_news_content(news_url):
+    try:
+        headers = {
+            'User-Agent': BASE_USER_AGENT
+        }
+        response = requests.get(news_url, headers=headers, timeout=10)
+        response.raise_for_status()
+
+        page_content = response.text
+        
+        image_url = ""
+        
+        pattern = r'https://news-cdn\.varzesh3\.com/pictures/[\w/.-]+\.(?:webp|jpg|jpeg|png)'
+        matches = re.findall(pattern, page_content)
+        
+        if matches:
+            image_url = matches[0]
+
+        soup = BeautifulSoup(response.content, 'html.parser')
+        
+        content = extract_news_content(soup)
+        
+        date_text = None
+        
+        all_spans = soup.find_all('span')
+        
+        for i, span in enumerate(all_spans):
+            text = span.get_text().strip()
+            if "کد:" in text:
+                if i + 1 < len(all_spans):
+                    next_span = all_spans[i + 1]
+                    date_text = next_span.get_text().strip()
+                    break
+        
+        if not date_text:
+            for span in all_spans:
+                text = span.get_text().strip()
+                if any(month in text for month in ['فروردین', 'اردیبهشت', 'خرداد', 'تیر', 'مرداد', 'شهریور', 
+                                                 'مهر', 'آبان', 'آذر', 'دی', 'بهمن', 'اسفند']):
+                    date_text = text
+                    break
+        published_date = parse_persian_date(date_text) if date_text else datetime.now()
+        
+        return content, published_date, image_url
+        
+    except Exception as e:
+        print(f"Error scraping news content {news_url}: {e}")
+        return "خطا در دریافت محتوای خبر", datetime.now(), ""
+
+
+def extract_news_content(soup):
+    """استخراج محتوای خبر از تگ‌های p داخل div.news-body"""
+    
+    # پیدا کردن div اصلی با کلاس news-body
+    news_body = soup.select_one('div.news-body')
+    if not news_body:
+        return "محتوای خبر در دسترس نیست"
+    
+    # مستقیماً تمام تگ‌های p رو بگیر و متنشون رو ترکیب کن
+    paragraphs = news_body.find_all('p')
+    content = '\n\n'.join([p.get_text().strip() for p in paragraphs if p.get_text().strip()])
+    
+    if not content:
+        return "محتوای خبر در دسترس نیست"
+    
+    # تمیزکاری نهایی
+    content = re.sub(r'\s+', ' ', content)
+    content = re.sub(r'\n\s*\n', '\n\n', content)
+    
+    print(f"Extracted content with {len(paragraphs)} paragraphs")
+    return content
+
 
 def get_category_name(sport_id):
     """تبدیل آیدی ورزش به نام دسته‌بندی"""
@@ -138,90 +210,3 @@ def get_category_name(sport_id):
         return sport_map[sport_id]
     else:
         return "سایر"
-
-def scrape_news_content(news_url):
-    try:
-        headers = {
-            'User-Agent': BASE_USER_AGENT
-        }
-        response = requests.get(news_url, headers=headers, timeout=10)
-        response.raise_for_status()
-
-        page_content = response.text
-        
-        image_url = ""
-        
-        pattern = r'https://news-cdn\.varzesh3\.com/pictures/[\w/.-]+\.(?:webp|jpg|jpeg|png)'
-        matches = re.findall(pattern, page_content)
-        
-        if matches:
-            image_url = matches[0]
-
-        soup = BeautifulSoup(response.content, 'html.parser')
-        
-        content_element = soup.select_one('.news-content, .content, .news-text, article')
-        content = content_element.get_text().strip() if content_element else "محتوای خبر در دسترس نیست"
-        
-        date_text = None
-        
-        all_spans = soup.find_all('span')
-        
-        for i, span in enumerate(all_spans):
-            text = span.get_text().strip()
-            if "کد:" in text:
-                if i + 1 < len(all_spans):
-                    next_span = all_spans[i + 1]
-                    date_text = next_span.get_text().strip()
-                    break
-        
-        if not date_text:
-            for span in all_spans:
-                text = span.get_text().strip()
-                if any(month in text for month in ['فروردین', 'اردیبهشت', 'خرداد', 'تیر', 'مرداد', 'شهریور', 
-                                                 'مهر', 'آبان', 'آذر', 'دی', 'بهمن', 'اسفند']):
-                    date_text = text
-                    break
-        published_date = parse_persian_date(date_text) if date_text else datetime.now()
-        
-        return content, published_date, image_url
-        
-    except Exception as e:
-        print(f"Error scraping news content {news_url}: {e}")
-        return "خطا در دریافت محتوای خبر", datetime.now(), ""
-    
-def parse_persian_date(persian_date_str):
-    try:
-        pattern = r'(\d{1,2})\s+(\S+)\s+(\d{4})\s+ساعت\s+(\d{1,2}):(\d{2})'
-        match = re.search(pattern, persian_date_str)
-        
-        if not match:
-            return datetime.now()
-        
-        day = int(match.group(1))
-        month_name = match.group(2)
-        year = int(match.group(3))
-        hour = int(match.group(4))
-        minute = int(match.group(5))
-        
-        month_map = {
-            'فروردین': 1, 'اردیبهشت': 2, 'خرداد': 3,
-            'تیر': 4, 'مرداد': 5, 'شهریور': 6,
-            'مهر': 7, 'آبان': 8, 'آذر': 9,
-            'دی': 10, 'بهمن': 11, 'اسفند': 12
-        }
-        
-        month = month_map.get(month_name, 1)
-        
-        jalali_date = jdatetime.date(year, month, day)
-        gregorian_date = jalali_date.togregorian()
-        
-        return datetime(
-            gregorian_date.year, 
-            gregorian_date.month, 
-            gregorian_date.day,
-            hour, minute
-        )
-        
-    except Exception as e:
-        print(f"Error parsing Persian date '{persian_date_str}': {e}")
-        return datetime.now()
