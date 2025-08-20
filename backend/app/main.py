@@ -61,11 +61,5 @@ def search_news(q: str, skip: int = 0, limit: int = 100, db: Session = Depends(g
     news = crud.search_news(db, query=q, skip=skip, limit=limit)
     return news
 
-@app.post("/news/", response_model=schemas.News)
-def create_news(news: schemas.NewsCreate, db: Session = Depends(get_db)):
-    db_news = crud.get_news_by_link(db, link=news.link)
-    if db_news:
-        raise HTTPException(status_code=400, detail="News already exists")
-    return crud.create_news(db, news)
 
     

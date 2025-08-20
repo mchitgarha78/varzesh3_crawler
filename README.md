@@ -65,7 +65,6 @@ npm start
 | `GET` | `/` | API status |
 | `GET` | `/news/` | Get paginated news |
 | `GET` | `/news/search/?q={query}` | Search news |
-| `POST` | `/news/` | Create news item |
 
 ## Usage
 
