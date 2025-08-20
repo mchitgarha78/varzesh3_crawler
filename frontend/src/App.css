@@ -242,3 +242,39 @@ body {
       height: 200px;
     }
   }
+
+
+  .read-more-btn {
+    background-color: #27ae60;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    margin-top: 10px;
+    transition: background-color 0.3s;
+  }
+  
+  .read-more-btn:hover {
+    background-color: #219653;
+  }
+  
+  .news-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 15px;
+    gap: 10px;
+  }
+  
+  @media (max-width: 768px) {
+    .news-actions {
+      flex-direction: column;
+      gap: 8px;
+    }
+    
+    .read-more-btn {
+      width: 100%;
+    }
+  }

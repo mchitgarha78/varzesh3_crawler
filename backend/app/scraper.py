@@ -136,25 +136,20 @@ def scrape_news_content(news_url):
 
 
 def extract_news_content(soup):
-    """استخراج محتوای خبر از تگ‌های p داخل div.news-body"""
     
-    # پیدا کردن div اصلی با کلاس news-body
     news_body = soup.select_one('div.news-body')
     if not news_body:
         return "محتوای خبر در دسترس نیست"
     
-    # مستقیماً تمام تگ‌های p رو بگیر و متنشون رو ترکیب کن
     paragraphs = news_body.find_all('p')
     content = '\n\n'.join([p.get_text().strip() for p in paragraphs if p.get_text().strip()])
     
     if not content:
         return "محتوای خبر در دسترس نیست"
-    
-    # تمیزکاری نهایی
+
     content = re.sub(r'\s+', ' ', content)
     content = re.sub(r'\n\s*\n', '\n\n', content)
     
-    print(f"Extracted content with {len(paragraphs)} paragraphs")
     return content
 
 
