@@ -137,3 +137,8 @@ docker-compose down -v
 ### Database Persistence
 
 The SQLite database is persisted in a Docker volume (`backend_data`) to prevent data loss between container restarts.
+
+## Under development:
+### Unit Tests:
+Unit tests also can be implemented for both backend and frontend. The (`pytest`) framework is recommended for the backend, while a combination of (`Jest`) and (`React Testing Library`) can be used for the frontend to ensure component safety.
+
