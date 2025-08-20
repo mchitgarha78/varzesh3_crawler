@@ -17,7 +17,7 @@ services:
   frontend:
     build: 
       context: ./frontend
-      dockerfile: Dockerfile.dev
+      dockerfile: Dockerfile
     ports:
       - "3000:3000"
     volumes:
@@ -26,6 +26,7 @@ services:
     environment:
       - REACT_APP_API_URL=http://backend:8000
       - CHOKIDAR_USEPOLLING=true
+      - NODE_OPTIONS=--openssl-legacy-provider
     depends_on:
       - backend
     restart: unless-stopped

@@ -8,9 +8,10 @@ A web application that crawls and displays news from Varzesh3.com (a popular Per
 - **SQLite Database**: Stores news articles with ORM (SQLAlchemy)
 - **RESTful API**: FastAPI backend with comprehensive endpoints
 - **React Frontend**: Modern responsive UI with Persian (RTL) support
-- **Search Functionality**: Full-text search across news titles and content
-- **Real-time Updates**: Background scraping
 - **Modal View**: Read full articles without leaving the site
+- **Search Functionality**: Full-text search across news titles and content
+- **Real-time Updates**: Background scraping every minute
+- **Docker Support**: Complete containerization with Docker Compose
 - **Category Support**: Football, volleyball, basketball and other sports categories
 
 ## Tech Stack
@@ -28,10 +29,33 @@ A web application that crawls and displays news from Varzesh3.com (a popular Per
 - **CSS3** with RTL support
 - **Responsive design**
 
+### DevOps
+- **Docker & Docker Compose**
+- **Multi-stage builds**
+- **Health checks**
+- **Container orchestration**
+
 ## Installation & Setup
 
+### Method 1: Docker Compose (Recommended)
 
-### Method 1: Manual Setup:
+1. **Clone and setup**:
+   ```bash
+   git clone https://github.com/mchitgarha78/varzesh3_crawler.git
+   cd varzesh3-news-reader
+   ```
+
+2. **Run with Docker**:
+   ```bash
+   docker-compose up --build
+   ```
+
+3. **Access the application**:
+   - Frontend: http://localhost:3000
+   - Backend API: http://localhost:8000
+   - API Documentation: http://localhost:8000/docs
+
+### Method 2: Manual Setup (Development)
 
 #### Backend Setup:
 ```bash
@@ -54,9 +78,13 @@ cd frontend
 # Install dependencies
 npm install
 
+# Fix OpenSSL issue
+export NODE_OPTIONS=--openssl-legacy-provider
+
 # Run the development server
 npm start
 ```
+
 
 ## API Endpoints
 
@@ -66,6 +94,7 @@ npm start
 | `GET` | `/news/` | Get paginated news |
 | `GET` | `/news/search/?q={query}` | Search news |
 
+
 ## Usage
 
 1. **Automatic News Loading**: The application automatically loads news from Varzesh3.com every minute
@@ -74,38 +103,37 @@ npm start
 4. **Read Full Content**: Click "مطالعه کامل" to read full articles in a modal window
 5. **View Original**: Click "مشاهده در ورزش سه" to view the original article on Varzesh3.com
 
-## Features Details
+## Docker Commands
 
-### News Scraping
-- Scrapes both football and other sports news sections
-- Extracts titles, content, images, and publication dates
-- Converts Persian dates to Gregorian format automatically
-- Prevents duplicate entries using news IDs
+```bash
+# Build and start containers
+docker-compose up --build
 
-### Database Schema
-- Stores news articles with complete metadata
-- Supports categories and tags
-- Maintains publication dates and timestamps
-- Includes image URLs for each news item
+# Start in detached mode
+docker-compose up -d
 
-### User Interface
-- Responsive design works on desktop and mobile
-- Persian RTL layout support
-- Clean modal-based article reading
-- Search functionality with instant results
-- Category-based news organization
+# Stop containers
+docker-compose down
 
-## Configuration
+# View logs
+docker-compose logs -f
 
-The application uses the following default settings:
-- **Backend Port**: 8000
-- **Frontend Port**: 3000  
-- **Database**: SQLite (varzesh3_news.db)
-- **Scraping Interval**: 60 seconds
+# View logs for specific service
+docker-compose logs frontend
 
+# Remove volumes (complete cleanup)
+docker-compose down -v
+```
 
-### Development Tips
+## Troubleshooting
 
-- Backend logs will show scraping progress and errors
-- Frontend console provides API call debugging information
-- Check network tab for API request/response details
+### Common Docker Issues
+
+1. **Port conflicts**: Ensure ports 3000 and 8000 are available
+2. **Build failures**: Check Docker daemon is running
+3. **Container not starting**: Check logs with `docker-compose logs`
+4. **OpenSSL issues**: NODE_OPTIONS is set to handle legacy providers
+
+### Database Persistence
+
+The SQLite database is persisted in a Docker volume (`backend_data`) to prevent data loss between container restarts.
