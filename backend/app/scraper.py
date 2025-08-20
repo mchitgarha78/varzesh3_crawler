@@ -29,7 +29,7 @@ def scrape_varzesh3(db: Session):
         for news_list in news_lists:
             news_elements = news_list.select('li[data-newsid]')
             
-            for element in news_elements[:2]:  
+            for element in news_elements[:5]:  
                 try:
                     news_id = element.get('data-newsid')
                     if not news_id:
@@ -136,7 +136,7 @@ def scrape_news_content(news_url):
 
 
 def extract_news_content(soup):
-    
+
     news_body = soup.select_one('div.news-body')
     if not news_body:
         return "محتوای خبر در دسترس نیست"
