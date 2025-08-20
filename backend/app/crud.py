@@ -15,7 +15,8 @@ def create_news(db: Session, news: schemas.NewsCreate):
         content=news.content,
         link=news.link,
         published_date=news.published_date,
-        category=news.category
+        category=news.category,
+        image_url=news.image_url
     )
     db.add(db_news)
     db.commit()

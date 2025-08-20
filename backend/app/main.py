@@ -68,8 +68,4 @@ def create_news(news: schemas.NewsCreate, db: Session = Depends(get_db)):
         raise HTTPException(status_code=400, detail="News already exists")
     return crud.create_news(db, news)
 
-@app.post("/scrape/")
-def trigger_scrape(background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
-    background_tasks.add_task(scraper.scrape_varzesh3, db)
-    return {"message": "Scraping started in background"}
     

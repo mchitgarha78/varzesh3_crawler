@@ -17,9 +17,10 @@ def scrape_varzesh3(db: Session):
         }
         response = requests.get(url, headers=headers, timeout=10)
         response.raise_for_status()
-        
+
         soup = BeautifulSoup(response.content, 'html.parser')
         news_items = []
+        
         
         news_list = soup.select_one('.news-main-list.scrollable-box ul')
         if not news_list:
@@ -52,13 +53,15 @@ def scrape_varzesh3(db: Session):
                 news_details = scrape_news_content(link)
                 content = news_details[0]
                 published_date = news_details[1]
-                
+                image_url = news_details[2]
+
                 news_item = models.News(
                     news_id=news_id,
                     title=title,
                     content=content,
                     link=link,
-                    published_date=published_date
+                    published_date=published_date,
+                    image_url=image_url
                 )
                 news_items.append(news_item)
                 
@@ -81,7 +84,18 @@ def scrape_news_content(news_url):
         }
         response = requests.get(news_url, headers=headers, timeout=10)
         response.raise_for_status()
+
+        page_content = response.text
         
+        image_url = ""
+        
+        pattern = r'https://news-cdn\.varzesh3\.com/pictures/[\w/.-]+\.(?:webp|jpg|jpeg|png)'
+        matches = re.findall(pattern, page_content)
+        
+        if matches:
+            image_url = matches[0]
+            print(f"Image URL found: {image_url}")
+
         soup = BeautifulSoup(response.content, 'html.parser')
         
         content_element = soup.select_one('.news-content, .content, .news-text, article')
@@ -108,11 +122,11 @@ def scrape_news_content(news_url):
                     break
         published_date = parse_persian_date(date_text) if date_text else datetime.now()
         
-        return content, published_date
+        return content, published_date, image_url
         
     except Exception as e:
         print(f"Error scraping news content {news_url}: {e}")
-        return "خطا در دریافت محتوای خبر", datetime.now()
+        return "خطا در دریافت محتوای خبر", datetime.now(), ""
     
 def parse_persian_date(persian_date_str):
     try:

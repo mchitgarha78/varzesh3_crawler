@@ -9,7 +9,19 @@ const NewsList = ({ news }) => {
     <div className="news-list">
       {news.map((item) => (
         <div key={item.id} className="news-item">
-          <h2>{item.title}</h2>
+          <div className="news-header">
+            {item.image_url && (
+              <img 
+                src={item.image_url} 
+                alt={item.title}
+                className="news-image"
+                onError={(e) => {
+                  e.target.style.display = 'none'; 
+                }}
+              />
+            )}
+            <h2>{item.title}</h2>
+          </div>
           
           {item.content && (
             <div className="news-content">

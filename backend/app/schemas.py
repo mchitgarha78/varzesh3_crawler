@@ -7,6 +7,7 @@ class NewsBase(BaseModel):
     title: str
     content: Optional[str] = None
     link: str
+    image_url: Optional[str] = None
     published_date: Optional[datetime] = None
     category: Optional[str] = None
 

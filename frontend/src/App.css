@@ -215,3 +215,30 @@ body {
       align-items: flex-start;
     }
   }
+
+  .news-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 15px;
+    margin-bottom: 15px;
+  }
+  
+  .news-image {
+    width: 120px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 6px;
+    flex-shrink: 0;
+  }
+  
+  
+  @media (max-width: 768px) {
+    .news-header {
+      flex-direction: column;
+    }
+    
+    .news-image {
+      width: 100%;
+      height: 200px;
+    }
+  }
