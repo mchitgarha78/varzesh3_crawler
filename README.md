@@ -38,7 +38,7 @@ A web application that crawls and displays news from Varzesh3.com (a popular Per
 
 # Create virtual environment
 python3 -m venv backend/venv
-source backend/venv/bin/activate  # On Windows: venv\Scripts\activate
+source backend/venv/bin/activate
 
 # Install dependencies
 pip install -r backend/requirements.txt

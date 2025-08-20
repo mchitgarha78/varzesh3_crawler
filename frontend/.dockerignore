@@ -1,0 +1,11 @@
+node_modules
+build
+.dockerignore
+Dockerfile
+Dockerfile.dev
+.git
+.gitignore
+README.md
+.env
+.DS_Store
+coverage

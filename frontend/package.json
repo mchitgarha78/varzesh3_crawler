@@ -7,7 +7,10 @@
       "start": "react-scripts start",
       "build": "react-scripts build",
       "test": "react-scripts test",
-      "eject": "react-scripts eject"
+      "eject": "react-scripts eject",
+      "docker:dev": "docker-compose -f docker-compose.dev.yml up --build",
+      "docker:prod": "docker-compose up --build",
+      "docker:down": "docker-compose down"
     },
     "dependencies": {
       "react": "^17.0.2",
