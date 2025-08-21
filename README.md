@@ -42,7 +42,7 @@ A web application that crawls and displays news from Varzesh3.com (a popular Per
 1. **Clone and setup**:
    ```bash
    git clone https://github.com/mchitgarha78/varzesh3_crawler.git
-   cd varzesh3-news-reader
+   cd varzesh3_crawler
    ```
 
 2. **Run with Docker**:
